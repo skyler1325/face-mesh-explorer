@@ -864,7 +864,6 @@ async function startCamera() {
     canvasEl.height = videoEl.videoHeight;
     statusBar.textContent = 'Detecting...';
     setTimeout(() => { statusBar.style.display = 'none'; }, 2000);
-    document.getElementById('clickHint').style.display = 'block';
     detect();
   } catch (err) {
     statusBar.style.display = 'none';

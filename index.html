@@ -229,15 +229,18 @@
 
   window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'IFRAME_CLICK_ACTION') {
-      // 1. Calculate target coordinates relative to the iframe's current window size
       const targetX = event.data.ratioX * window.innerWidth;
       const targetY = event.data.ratioY * window.innerHeight;
   
-      // 2. Locate the precise DOM element sitting at that viewport point
       const elementToClick = document.elementFromPoint(targetX, targetY);
   
       if (elementToClick) {
-        // 3. Dispatch native browser mouse interaction event chain
+        // Trigger native element focus sequence
+        if (typeof elementToClick.click === 'function') {
+          elementToClick.click();
+        }
+  
+        // Create full mouse interaction loop to satisfy complex reactive frameworks (like React/Vue)
         const clickEvent = new MouseEvent('click', {
           view: window,
           bubbles: true,

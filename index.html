@@ -226,35 +226,42 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'GA_PLACEHOLDER');
-
+  
   window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'IFRAME_NAMED_CLICK_ACTION') {
       const targetLabel = event.data.targetLabel;
-  
-      // Broadened target query to handle label definitions and plain text containers
-      const elements = document.querySelectorAll('button, a, input, [role="button"], label, span, div');
       let targetElement = null;
   
-      for (let i = 0; i < elements.length; i++) {
-        const elementText = elements[i].textContent || elements[i].value || '';
-        if (elementText.toLowerCase().trim() === targetLabel) {
-          targetElement = elements[i];
-          break;
+      // 1. Explicitly check if the user selected "wireframe mode" to target your checkbox ID
+      if (targetLabel === 'wireframe mode') {
+        targetElement = document.getElementById('wireframeToggle');
+      }
+  
+      // 2. Fallback text search loop for standard layout buttons or labels
+      if (!targetElement) {
+        const elements = document.querySelectorAll('button, a, input, [role="button"], label, span, div');
+        for (let i = 0; i < elements.length; i++) {
+          const elementText = elements[i].textContent || elements[i].value || '';
+          if (elementText.toLowerCase().trim() === targetLabel) {
+            targetElement = elements[i];
+            break;
+          }
+        }
+  
+        // Resolve label references to their bound target inputs if found via text matching
+        if (targetElement && targetElement.tagName.toLowerCase() === 'label') {
+          if (targetElement.htmlFor) {
+            const associatedInput = document.getElementById(targetElement.htmlFor);
+            if (associatedInput) targetElement = associatedInput;
+          } else {
+            const nestedInput = targetElement.querySelector('input[type="checkbox"]');
+            if (nestedInput) targetElement = nestedInput;
+          }
         }
       }
   
+      // 3. Dispatch the click sequences safely onto the target object
       if (targetElement) {
-        // Direct handling if the user clicked a text <label> bound to a checkbox input element
-        if (targetElement.tagName.toLowerCase() === 'label' && targetElement.htmlFor) {
-          const associatedInput = document.getElementById(targetElement.htmlFor);
-          if (associatedInput) targetElement = associatedInput;
-        } else if (targetElement.tagName.toLowerCase() === 'label') {
-          // Alternative fallback check for nested checkboxes inside a label container
-          const nestedInput = targetElement.querySelector('input[type="checkbox"]');
-          if (nestedInput) targetElement = nestedInput;
-        }
-  
-        // Native click dispatcher flow execution
         if (typeof targetElement.click === 'function') {
           targetElement.click();
         }

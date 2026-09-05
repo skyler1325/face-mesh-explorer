@@ -248,18 +248,6 @@
           }
         }
   
-        // Resolve label references to their bound target inputs if found via text matching
-        if (targetElement && targetElement.tagName.toLowerCase() === 'label') {
-          if (targetElement.htmlFor) {
-            const associatedInput = document.getElementById(targetElement.htmlFor);
-            if (associatedInput) targetElement = associatedInput;
-          } else {
-            const nestedInput = targetElement.querySelector('input[type="checkbox"]');
-            if (nestedInput) targetElement = nestedInput;
-          }
-        }
-      }
-  
       // 3. Dispatch the click sequences safely onto the target object
       if (targetElement) {
         if (typeof targetElement.click === 'function') {

@@ -228,16 +228,16 @@
   gtag('config', 'GA_PLACEHOLDER');
 
   window.addEventListener('message', (event) => {
-  // Ensure the message is from our custom PenguinMod extension
     if (event.data && event.data.type === 'IFRAME_CLICK_ACTION') {
-      const targetX = event.data.x;
-      const targetY = event.data.y;
-
-      // 1. Locate the exact DOM element sitting at those specific (x, y) coordinates
+      // 1. Calculate target coordinates relative to the iframe's current window size
+      const targetX = event.data.ratioX * window.innerWidth;
+      const targetY = event.data.ratioY * window.innerHeight;
+  
+      // 2. Locate the precise DOM element sitting at that viewport point
       const elementToClick = document.elementFromPoint(targetX, targetY);
-
+  
       if (elementToClick) {
-        // 2. Build a real, synthetic MouseEvent sequence
+        // 3. Dispatch native browser mouse interaction event chain
         const clickEvent = new MouseEvent('click', {
           view: window,
           bubbles: true,
@@ -245,8 +245,7 @@
           clientX: targetX,
           clientY: targetY
         });
-
-        // 3. Dispatch the click natively onto the targeted element
+  
         elementToClick.dispatchEvent(clickEvent);
       }
     }

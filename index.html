@@ -231,11 +231,10 @@
     if (event.data && event.data.type === 'IFRAME_NAMED_CLICK_ACTION') {
       const targetLabel = event.data.targetLabel;
   
-      // Query buttons, clickable items, and standard tags
-      const elements = document.querySelectorAll('button, a, input[type="button"], [role="button"], span');
+      // Broadened target query to handle label definitions and plain text containers
+      const elements = document.querySelectorAll('button, a, input, [role="button"], label, span, div');
       let targetElement = null;
   
-      // Search for an exact match based on the text node content inside the HTML
       for (let i = 0; i < elements.length; i++) {
         const elementText = elements[i].textContent || elements[i].value || '';
         if (elementText.toLowerCase().trim() === targetLabel) {
@@ -245,6 +244,17 @@
       }
   
       if (targetElement) {
+        // Direct handling if the user clicked a text <label> bound to a checkbox input element
+        if (targetElement.tagName.toLowerCase() === 'label' && targetElement.htmlFor) {
+          const associatedInput = document.getElementById(targetElement.htmlFor);
+          if (associatedInput) targetElement = associatedInput;
+        } else if (targetElement.tagName.toLowerCase() === 'label') {
+          // Alternative fallback check for nested checkboxes inside a label container
+          const nestedInput = targetElement.querySelector('input[type="checkbox"]');
+          if (nestedInput) targetElement = nestedInput;
+        }
+  
+        // Native click dispatcher flow execution
         if (typeof targetElement.click === 'function') {
           targetElement.click();
         }

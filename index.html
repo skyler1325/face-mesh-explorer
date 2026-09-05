@@ -228,28 +228,33 @@
   gtag('config', 'GA_PLACEHOLDER');
 
   window.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'IFRAME_CLICK_ACTION') {
-      const targetX = event.data.ratioX * window.innerWidth;
-      const targetY = event.data.ratioY * window.innerHeight;
+    if (event.data && event.data.type === 'IFRAME_NAMED_CLICK_ACTION') {
+      const targetLabel = event.data.targetLabel;
   
-      const elementToClick = document.elementFromPoint(targetX, targetY);
+      // Query buttons, clickable items, and standard tags
+      const elements = document.querySelectorAll('button, a, input[type="button"], [role="button"], span');
+      let targetElement = null;
   
-      if (elementToClick) {
-        // Trigger native element focus sequence
-        if (typeof elementToClick.click === 'function') {
-          elementToClick.click();
+      // Search for an exact match based on the text node content inside the HTML
+      for (let i = 0; i < elements.length; i++) {
+        const elementText = elements[i].textContent || elements[i].value || '';
+        if (elementText.toLowerCase().trim() === targetLabel) {
+          targetElement = elements[i];
+          break;
+        }
+      }
+  
+      if (targetElement) {
+        if (typeof targetElement.click === 'function') {
+          targetElement.click();
         }
   
-        // Create full mouse interaction loop to satisfy complex reactive frameworks (like React/Vue)
         const clickEvent = new MouseEvent('click', {
           view: window,
           bubbles: true,
-          cancelable: true,
-          clientX: targetX,
-          clientY: targetY
+          cancelable: true
         });
-  
-        elementToClick.dispatchEvent(clickEvent);
+        targetElement.dispatchEvent(clickEvent);
       }
     }
   });

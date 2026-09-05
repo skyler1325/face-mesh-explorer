@@ -234,7 +234,10 @@
   
       // 1. Explicitly check if the user selected "wireframe mode" to target your checkbox ID
       if (targetLabel === 'wireframe mode') {
-        targetElement = document.getElementById('wireframeToggle');
+        const checkbox = document.getElementById("wireframeToggle");
+        if (checkbox) {
+          checkbox.checked = true; // or false to uncheck
+        }
       }
   
       // 2. Fallback text search loop for standard layout buttons or labels
